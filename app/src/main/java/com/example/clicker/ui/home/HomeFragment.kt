@@ -77,15 +77,15 @@ class HomeFragment : Fragment() {
         }
         mainCont.addView(newImage)
 
+
         imageView.setOnClickListener {
             if (!nextImage){
-                soundManager.playSound(R.raw.rat_squeak)
+                soundManager.playSound(requireContext(), R.raw.rat_squeak)
 
                 counter++
                 mov()
-
                 if (counter >= clickCountLen) {
-                    soundManager.playSound(R.raw.cat_meow)
+                    soundManager.playSound(requireContext(), R.raw.cat_meow)
                     showNewImage()
 
                     imageView.postDelayed({
@@ -98,6 +98,9 @@ class HomeFragment : Fragment() {
                             mov()
                         } else if (level == 2) {
                             level = 3
+//                            nextImage = false
+//                            clickCountLen = 30
+//                            mov()
                         }
                     }, 2000)
 

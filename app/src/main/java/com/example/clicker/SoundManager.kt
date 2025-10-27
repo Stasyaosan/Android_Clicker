@@ -4,15 +4,21 @@ import android.media.MediaPlayer
 
 class SoundManager(private val context: Context) {
 
-    private var mediaPlayer: MediaPlayer? = null
-    private var currentSoundResourceId: Int? = null
-    fun playSound(soundResourceId: Int, ){
-        stopSound()
-        mediaPlayer = MediaPlayer.create(context, soundResourceId)
-        mediaPlayer?.start()
+    private var currentPlayer: MediaPlayer? = null
+    fun playSound(context: Context, soundResourceId: Int){
+//        stopSound()
+        currentPlayer = MediaPlayer.create(context, soundResourceId)
+        currentPlayer?.start()
     }
 
     fun stopSound(){
-        mediaPlayer?.stop()
+        currentPlayer?.let {
+            player ->
+            if (player.isPlaying){
+                player.stop()
+            }
+            player.release()
+        }
+        currentPlayer = null
     }
 }
