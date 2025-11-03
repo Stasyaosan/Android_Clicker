@@ -8,7 +8,11 @@ class SoundManager(private val context: Context) {
     fun playSound(context: Context, soundResourceId: Int){
 //        stopSound()
         currentPlayer = MediaPlayer.create(context, soundResourceId)
+        currentPlayer?.setOnCompletionListener {
+            stopSound()
+        }
         currentPlayer?.start()
+
     }
 
     fun stopSound(){

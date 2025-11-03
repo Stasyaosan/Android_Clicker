@@ -85,6 +85,7 @@ class HomeFragment : Fragment() {
                 counter++
                 mov()
                 if (counter >= clickCountLen) {
+                    soundManager.stopSound()
                     soundManager.playSound(requireContext(), R.raw.cat_meow)
                     showNewImage()
 
