@@ -1,6 +1,7 @@
 package com.example.clicker.ui.home
 
 import android.media.MediaPlayer
+import android.graphics.Matrix
 import android.os.Bundle
 import android.text.Layout
 import android.view.LayoutInflater
@@ -17,6 +18,7 @@ import com.example.clicker.R
 import com.example.clicker.databinding.FragmentHomeBinding
 import kotlin.random.Random
 import com.example.clicker.SoundManager
+import java.util.Timer
 import kotlin.concurrent.timer
 
 class HomeFragment : Fragment() {
@@ -29,7 +31,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private var counter = 0
 
-    private var clickCountLen = 10
+    private var clickCountLen = 5.0
     private var nextImage = false
     private val random = Random
 
@@ -40,8 +42,12 @@ class HomeFragment : Fragment() {
     private lateinit var newPlayer: MediaPlayer
     private lateinit var mainCont: ConstraintLayout
     private lateinit var textView: TextView
+
+    private var catTimer: Timer? = null
     private var x1 = 0
     private var y1 = 0
+
+    private var finalImage = R.mipmap.cat_final
 
     private var level = 1
 
@@ -79,15 +85,25 @@ class HomeFragment : Fragment() {
 
 
         imageView.setOnClickListener {
-            if (!nextImage){
-                soundManager.playSound(requireContext(), R.raw.rat_squeak)
+            if (!nextImage) {
+                if (level == 3) {
+                    soundManager.playSound(requireContext(), R.raw.cat)
+                } else {
+                    soundManager.playSound(requireContext(), R.raw.rat_squeak)
+                }
+
 
                 counter++
                 mov()
                 if (counter >= clickCountLen) {
                     soundManager.stopSound()
-                    soundManager.playSound(requireContext(), R.raw.cat_meow)
-                    showNewImage()
+                    if (level == 3) {
+                        showFinal()
+                    } else {
+                        soundManager.playSound(requireContext(), R.raw.cat_meow)
+                        showNewImage()
+                    }
+
 
                     imageView.postDelayed({
 
@@ -99,9 +115,10 @@ class HomeFragment : Fragment() {
                             mov()
                         } else if (level == 2) {
                             level = 3
-//                            nextImage = false
-//                            clickCountLen = 30
-//                            mov()
+                            nextImage = false
+                            clickCountLen *= 1.5
+                            imageView.setImageResource(R.mipmap.cat)
+                            startCatMove()
                         }
                     }, 2000)
 
@@ -152,6 +169,38 @@ class HomeFragment : Fragment() {
             .setDuration(2000).start()
     }
 
+    private fun startCatMove() {
+        catTimer = timer(period = 400) {
+            activity?.runOnUiThread {
+                mov()
+            }
+        }
+    }
+
+    private fun showFinal() {
+        catTimer?.cancel()
+        nextImage = true
+        imageView.layoutParams.width = resources.displayMetrics.widthPixels
+        imageView.layoutParams.height = resources.displayMetrics.heightPixels
+
+        imageView.scaleType = ImageView.ScaleType.MATRIX
+        val matrix = Matrix()
+        matrix.setScale(2f, 2f)
+
+        val screenWidth = resources.displayMetrics.widthPixels
+        val translateX = screenWidth * 1.4f
+        matrix.postTranslate(-translateX, 0f)
+        imageView.imageMatrix = matrix
+
+        imageView.requestLayout()
+        val centerX = 0.toFloat()
+        val centerY = 0.toFloat()
+        imageView.x = centerX
+        imageView.y = centerY
+        imageView.setImageResource(R.mipmap.cat_final)
+        imageView.animate().cancel()
+        soundManager.playSound(requireContext(), R.raw.cat_final)
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
