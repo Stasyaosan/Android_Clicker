@@ -31,7 +31,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private var counter = 0
 
-    private var clickCountLen = 5.0
+    private var clickCountLen = 10.0
     private var nextImage = false
     private val random = Random
 
@@ -96,11 +96,9 @@ class HomeFragment : Fragment() {
                 counter++
                 mov()
                 if (counter >= clickCountLen) {
-                    soundManager.stopSound()
                     if (level == 3) {
                         showFinal()
                     } else {
-                        soundManager.playSound(requireContext(), R.raw.cat_meow)
                         showNewImage()
                     }
 
@@ -167,6 +165,8 @@ class HomeFragment : Fragment() {
             .x(-1500.toFloat())
             .y(y1.toFloat())
             .setDuration(2000).start()
+
+        soundManager.playSound(requireContext(), R.raw.cat_meow)
     }
 
     private fun startCatMove() {
