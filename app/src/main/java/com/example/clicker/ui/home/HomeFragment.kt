@@ -20,9 +20,12 @@ import kotlin.random.Random
 import com.example.clicker.SoundManager
 import java.util.Timer
 import kotlin.concurrent.timer
+import java.lang.Runnable
 
 class HomeFragment : Fragment() {
 
+    private var closeHandler: android.os.Handler? = null
+    private var closeRunnable: Runnable? = null
     private var _binding: FragmentHomeBinding? = null
     private lateinit var mediaPlayer: MediaPlayer
 
@@ -31,7 +34,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private var counter = 0
 
-    private var clickCountLen = 10.0
+    private var clickCountLen = 5.0
     private var nextImage = false
     private val random = Random
 
@@ -46,8 +49,6 @@ class HomeFragment : Fragment() {
     private var catTimer: Timer? = null
     private var x1 = 0
     private var y1 = 0
-
-    private var finalImage = R.mipmap.cat_final
 
     private var level = 1
 
@@ -133,19 +134,21 @@ class HomeFragment : Fragment() {
     }
 
     private fun mov() {
-        textView.text = counter.toString()
-        val maxX = mainCont.width - imageView.width
-        val maxY = mainCont.height - imageView.height
-        if (maxX > 0 && maxY > 0) {
-            val randomX = random.nextInt(maxX)
-            val randomY = random.nextInt(maxY)
-            x1 = randomX
-            y1 = randomY
-            imageView.animate()
-                .x(randomX.toFloat())
-                .y(randomY.toFloat())
-                .setDuration(300).start()
+        if (!nextImage) {
+            textView.text = counter.toString()
+            val maxX = mainCont.width - imageView.width
+            val maxY = mainCont.height - imageView.height
+            if (maxX > 0 && maxY > 0) {
+                val randomX = random.nextInt(maxX)
+                val randomY = random.nextInt(maxY)
+                x1 = randomX
+                y1 = randomY
+                imageView.animate()
+                    .x(randomX.toFloat())
+                    .y(randomY.toFloat())
+                    .setDuration(300).start()
 
+            }
         }
     }
 
@@ -185,7 +188,7 @@ class HomeFragment : Fragment() {
 
         imageView.scaleType = ImageView.ScaleType.MATRIX
         val matrix = Matrix()
-        matrix.setScale(2f, 2f)
+        matrix.setScale(1.5f, 1.5f)
 
         val screenWidth = resources.displayMetrics.widthPixels
         val translateX = screenWidth * 1.4f
@@ -200,6 +203,17 @@ class HomeFragment : Fragment() {
         imageView.setImageResource(R.mipmap.cat_final)
         imageView.animate().cancel()
         soundManager.playSound(requireContext(), R.raw.cat_final)
+        startAutoCloseTimer(500)
+    }
+
+    private fun startAutoCloseTimer(delayMillis: Long){
+        closeHandler?.removeCallbacksAndMessages(null)
+        closeHandler = android.os.Handler(android.os.Looper.getMainLooper())
+        closeRunnable = Runnable{
+            activity?.finishAffinity()
+        }
+        closeHandler?.postDelayed(closeRunnable!!, delayMillis)
+
     }
 
     override fun onDestroyView() {
